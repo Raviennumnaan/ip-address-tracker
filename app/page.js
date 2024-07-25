@@ -11,19 +11,23 @@ const Map = dynamic(() => import("@/app/_components/Map"), {
   ssr: false,
 });
 
-async function Page() {
+async function Page({ searchParams }) {
+  const { ip: searchedIp } = searchParams;
   const headerList = headers();
   const forwarded = headerList.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0] : "127.0.0.1";
+  const clientIp = forwarded ? forwarded.split(",")[0] : "127.0.0.1";
 
-  // const ipData = await getIPData("152.58.213.109");
-  const ipData = await getIPData(ip);
+  const ipData = await getIPData(searchedIp || clientIp);
+  const location = [
+    ipData?.location?.lat || 51.505,
+    ipData?.location?.lng || -0.09,
+  ];
 
   return (
     <>
-      <div className="flex max-h-dvh flex-col">
+      <div className="flex flex-col sm:max-h-dvh">
         <div>
-          <div className="relative h-60 w-full">
+          <div className="relative h-48 border border-red-950 px-2 py-2 sm:h-60">
             <Image
               className="hidden object-cover sm:block"
               src={BgDesktop}
@@ -44,10 +48,10 @@ async function Page() {
         </div>
 
         <div className="z-0 flex-1 overflow-hidden">
-          <Map />
+          <Map location={location} />
         </div>
       </div>
-      <div className="absolute left-1/2 top-10 z-10 min-w-max -translate-x-1/2 space-y-8 text-center">
+      <div className="absolute left-1/2 top-5 z-10 -translate-x-1/2 space-y-5 text-center sm:top-10 sm:min-w-[896px] sm:space-y-8">
         <h1 className="text-2xl font-semibold tracking-wider text-white">
           IP Address Tracker
         </h1>
